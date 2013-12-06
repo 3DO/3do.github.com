@@ -7,7 +7,7 @@ tags: [latex, mathjax]
 ---
 {% include JB/setup %}
 
-[MathJax](www.mathjax.org) is a tool for embedding latex math formulas into
+[MathJax](http://www.mathjax.org) is a tool for embedding latex math formulas into
 your own website.
 
 ###Installation
