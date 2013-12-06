@@ -66,10 +66,11 @@ task :post do
     post.puts "title: \"#{title.gsub(/-/,' ')}\""
     post.puts 'description: ""'
     post.puts "category: "
-	post.puts "tags: #{tags}"
+    post.puts "tags: []"
     post.puts "---"
     post.puts "{% include JB/setup %}"
   end
+  system "vim #{filename}"
 end # task :post
 
 # Usage: rake draft []title="A Title"] [tags=[tag1, tag2]]
@@ -148,7 +149,7 @@ task :page do
   name = ENV["name"] || "new-page.md"
   filename = File.join(SOURCE, "#{name}")
   filename = File.join(filename, "index.html") if File.extname(filename) == ""
-  title = File.basename(filename, File.extname(filename)).gsub(/[\W\_]/, " ").gsub(/\b\w/){$&.upcase}
+  title = File.basename(filename, File.extname(filename)).gsub(/[\W\_]/, " ").gsub(/\b\w/){$&.upcase }
   if File.exist?(filename)
     abort("rake aborted!") if ask("#{filename} already exists. Do you want to overwrite?", ['y', 'n']) == 'n'
   end
@@ -186,11 +187,11 @@ namespace :theme do
   # Public: Switch from one theme to another for your blog.
   #
   # name - String, Required. name of the theme you want to switch to.
-  # The theme must be installed into your JB framework.
+  #        The the theme must be installed into your JB framework.
   #
   # Examples
   #
-  # rake theme:switch name="the-program"
+  #   rake theme:switch name="the-program"
   #
   # Returns Success/failure messages.
   desc "Switch between Jekyll-bootstrap themes."
@@ -217,9 +218,9 @@ namespace :theme do
           page.puts "---"
           page.puts "layout: default"
           page.puts "---"
-        end
+        end 
         page.puts "{% include JB/setup %}"
-        page.puts "{% include themes/#{theme_name}/#{File.basename(filename)} %}"
+        page.puts "{% include themes/#{theme_name}/#{File.basename(filename)} %}" 
       end
     end
     
@@ -230,14 +231,14 @@ namespace :theme do
   # Public: Install a theme using the theme packager.
   # Version 0.1.0 simple 1:1 file matching.
   #
-  # git - String, Optional path to the git repository of the theme to be installed.
+  # git  - String, Optional path to the git repository of the theme to be installed.
   # name - String, Optional name of the theme you want to install.
-  # Passing name requires that the theme package already exist.
+  #        Passing name requires that the theme package already exist.
   #
   # Examples
   #
-  # rake theme:install git="https://github.com/jekyllbootstrap/theme-twitter.git"
-  # rake theme:install name="cool-theme"
+  #   rake theme:install git="https://github.com/jekyllbootstrap/theme-twitter.git"
+  #   rake theme:install name="cool-theme"
   #
   # Returns Success/failure messages.
   desc "Install theme"
@@ -252,13 +253,13 @@ namespace :theme do
     packaged_theme_path = JB::Path.build(:theme_packages, :node => name)
     
     abort("rake aborted!
-=> ERROR: 'name' cannot be blank") if name.empty?
-    abort("rake aborted!
-=> ERROR: '#{packaged_theme_path}' directory not found.
-=> Installable themes can be added via git. You can find some here: http://github.com/jekyllbootstrap
-=> To download+install run: `rake theme:install git='[PUBLIC-CLONE-URL]'`
-=> example : rake theme:install git='git@github.com:jekyllbootstrap/theme-the-program.git'
-") unless FileTest.directory?(packaged_theme_path)
+      => ERROR: 'name' cannot be blank") if name.empty?
+    abort("rake aborted! 
+      => ERROR: '#{packaged_theme_path}' directory not found.
+      => Installable themes can be added via git. You can find some here: http://github.com/jekyllbootstrap
+      => To download+install run: `rake theme:install git='[PUBLIC-CLONE-URL]'`
+      => example : rake theme:install git='git@github.com:jekyllbootstrap/theme-the-program.git'
+    ") unless FileTest.directory?(packaged_theme_path)
     
     manifest = verify_manifest(packaged_theme_path)
     
@@ -266,9 +267,9 @@ namespace :theme do
     # Exclude directories as they'll be recursively created. Exclude meta-data files.
     packaged_theme_files = []
     FileUtils.cd(packaged_theme_path) {
-      Dir.glob("**/*.*") { |f|
+      Dir.glob("**/*.*") { |f| 
         next if ( FileTest.directory?(f) || f =~ /^(manifest|readme|packager)/i )
-        packaged_theme_files << f
+        packaged_theme_files << f 
       }
     }
     
@@ -295,10 +296,10 @@ namespace :theme do
   # In other words packaging is essentially the reverse of installing.
   #
   # name - String, Required name of the theme you want to package.
-  #
+  #        
   # Examples
   #
-  # rake theme:package name="twitter"
+  #   rake theme:package name="twitter"
   #
   # Returns Success/failure messages.
   desc "Package theme"
@@ -337,7 +338,7 @@ end # end namespace :theme
 # So we'll have to change the folder name once we get the name.
 #
 # url - String, Required url to git repository.
-#
+#        
 # Returns theme manifest hash
 def theme_from_git_url(url)
   tmp_path = JB::Path.build(:theme_packages, :node => "_tmp")
@@ -357,7 +358,7 @@ end
 # Internal: Process theme package manifest file.
 #
 # theme_path - String, Required. File path to theme package.
-#
+#        
 # Returns theme manifest hash
 def verify_manifest(theme_path)
   manifest_path = File.join(theme_path, "manifest.yml")
