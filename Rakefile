@@ -385,3 +385,32 @@ end
 
 #Load custom rake scripts
 Dir['_rake/*.rake'].each { |r| load r }
+
+# Usage: rake push m="commit message"
+desc "Push results to the two repos"
+task :push do
+  ENV['MPWD']=File.dirname(__FILE__)
+  ENV['GIT_WORK_TREE'] = ENV['MPWD']
+  # Processing public repo
+  puts "Processing public repo"
+  ENV['GIT_DIR']="#{ENV['MPWD']}/.git-multi/public"
+  system("git add -A")
+  message = ENV["m"]
+  if message
+  	system("git commit -m \"#{message}\"")
+  else
+  	system("git commit")
+  end	
+  system("git push origin master")
+  # Processing private repo
+  puts "Processing private repo"
+  ENV['GIT_DIR']="#{ENV['MPWD']}/.git-multi/private"
+  system("git add -A")
+  message = ENV["m"]
+  if message
+  	system("git commit -m \"#{message}\"")
+  else
+  	system("git commit")
+  end	
+  system("git push origin master")
+end
