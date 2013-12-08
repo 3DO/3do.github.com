@@ -2,6 +2,7 @@ require "rubygems"
 require 'rake'
 require 'yaml'
 require 'time'
+require 'shellwords'
 
 SOURCE = "."
 CONFIG = {
@@ -55,6 +56,38 @@ task :post do
     exit -1
   end
   filename = File.join(CONFIG['posts'], "#{date}-#{slug}.#{CONFIG['post_ext']}")
+  if File.exist?(filename)
+    abort("rake aborted!") if ask("#{filename} already exists. Do you want to overwrite?", ['y', 'n']) == 'n'
+  end
+  
+  puts "Creating new post: #{filename}"
+  open(filename, 'w') do |post|
+    post.puts "---"
+    post.puts "layout: post"
+    post.puts "title: \"#{title.gsub(/-/,' ')}\""
+    post.puts 'description: ""'
+    post.puts "category: "
+    post.puts "tags: []"
+    post.puts "---"
+    post.puts "{% include JB/setup %}"
+  end
+  system "vim #{filename}"
+end # task :post
+
+# Usage: rake post title="A Title" [date="2012-02-09"] [tags=[tag1, tag2]]
+desc "Begin a new private post in #{CONFIG['posts']}"
+task :private do
+  abort("rake aborted: '#{CONFIG['posts']}' directory not found.") unless FileTest.directory?(CONFIG['posts'])
+  title = ENV["title"] || "new-post"
+  tags = ENV["tags"] || "[]"
+  slug = title.downcase.strip.gsub(' ', '-').gsub(/[^\w-]/, '')
+  begin
+    date = (ENV['date'] ? Time.parse(ENV['date']) : Time.now).strftime('%Y-%m-%d')
+  rescue => e
+    puts "Error - date format must be YYYY-MM-DD, please check you typed it correctly!"
+    exit -1
+  end
+  filename = File.join(CONFIG['posts'], "#{date}-#{slug}.#{CONFIG['post_ext']}.private")
   if File.exist?(filename)
     abort("rake aborted!") if ask("#{filename} already exists. Do you want to overwrite?", ['y', 'n']) == 'n'
   end
@@ -413,4 +446,24 @@ task :push do
   	system("git commit")
   end	
   system("git push origin master")
+end
+
+def bash(command)
+  escaped_command = Shellwords.escape(command)
+  system "bash -c #{escaped_command}"
+end
+
+# Usage: rake git:public/private
+namespace :git do
+  desc "Switch to public/private git environment"
+  task :public do
+  	ENV['MPWD']=File.dirname(__FILE__)
+  	ENV['GIT_DIR']="#{ENV['MPWD']}/.git-multi/public"
+    bash("bash --rcfile <(echo \"PS1='Working on public$ '\") -i")
+  end # task :public
+  task :private do
+    ENV['MPWD']=File.dirname(__FILE__)
+ 	ENV['GIT_DIR']="#{ENV['MPWD']}/.git-multi/private"
+  	bash("bash --rcfile <(echo \"PS1='Working on private$ '\") -i")
+  end # task :private
 end
