@@ -205,12 +205,12 @@ namespace :preview do
     drafts = ' --drafts' 
     system "jekyll serve --watch#{drafts}"
   end # task :draft
-  task :default do
+  task :no do
     system "jekyll serve --watch"
-  end # task :default
+  end # task :no draft
 end
 desc "Launch preview environment without draft"
-task :preview => 'preview:default'
+task :preview => 'preview:draft'
 
 # Public: Alias - Maintains backwards compatability for theme switching.
 task :switch_theme => "theme:switch"
